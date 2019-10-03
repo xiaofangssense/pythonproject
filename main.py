@@ -8,21 +8,21 @@ from config import *
 
 app.config['SECRET_KEY'] = 'meow'
 
-books = [
+products = [
     {
-        'name': 'Green Eggs',
-        'price': 12.8,
-        'isbn': 123343
+        'product_code': '192011F110017',
+        'amount': 212.8,
+        'currency_code': 'CAD'
     },
     {
-        'name': 'Fallen trees',
-        'price': 13.8,
-        'isbn': 3543534
+        'product_code': '182011F110017',
+        'amount': 313.8,
+        'currency_code': 'USD'
     },
     {
-        'name': 'Fallen trees another way',
-        'price': 13.8,
-        'isbn': 3543534
+        'product_code': '172011F110017',
+        'amount': 513.8,
+        'currency_code': 'CAD'
     }
 ]
 
@@ -35,10 +35,10 @@ def get_token():
     return token
 
 
-def valid_book_object(book_object):
-    if ('name' in book_object
-            and 'price' in book_object
-            and 'isbn' in book_object):
+def valid_product_object(product_object):
+    if ('product_code' in product_object
+            and 'amount' in product_object
+            and 'currency_code' in product_object):
         return True
     else:
         return False
@@ -47,50 +47,50 @@ def valid_book_object(book_object):
 # hello
 @app.route('/')
 def hello_world():
-    return 'Hello world!!!'
+    return 'Hello Python World!!!'
 
 
-# Get /books/32423423
-@app.route('/books/<int:isbn>')
-def get_book_by_isbn(isbn):
+# Get /products/CAD
+@app.route('/products/<string:currency_code>')
+def get_product_by_currency_code(currency_code):
     token = request.args.get('token')
     try:
         jwt.decode(token, app.config['SECRET_KEY'])
-        isbn_books = []
-        for book in books:
-            if book['isbn'] == isbn:
-                isbn_books.append(book)
-        return jsonify({'books': isbn_books})
+        currency_code_products = []
+        for product in products:
+            if product['currency_code'] == currency_code:
+                currency_code_products.append(product)
+        return jsonify({'products': currency_code_products})
     except:
         return jsonify({'error': 'Need a valid token.'})
 
 
-@app.route('/books')
-def get_books():
+@app.route('/products')
+def get_products():
     token = request.args.get('token')
     try:
         jwt.decode(token, app.config['SECRET_KEY'])
     except:
         return jsonify({'error': 'Need a valid token.'})
 
-    return jsonify({'books': books})
+    return jsonify({'products': products})
 
 
-@app.route('/books', methods=['POST'])
-def add_book():
-    book = request.get_json()
-    if valid_book_object(book):
-        books.append(book)
+@app.route('/products', methods=['POST'])
+def add_product():
+    product = request.get_json()
+    if valid_product_object(product):
+        products.append(product)
         return Response('True', 201, mimetype='application/json')
     else:
         return 'False'
 
 
-@app.route('/books', methods=['PUT'])
-def modify_book():
-    book = request.get_json()
-    if valid_book_object(book):
-        books.append(book)
+@app.route('/products', methods=['PUT'])
+def modify_product():
+    product = request.get_json()
+    if valid_product_object(product):
+        products.append(product)
         return Response('True', 201, mimetype='application/json')
     else:
         return 'False'
