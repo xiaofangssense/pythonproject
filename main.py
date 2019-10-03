@@ -35,11 +35,11 @@ def get_token():
 # hello
 @app.route('/')
 def hello_world():
-    return 'Hello Python World!!!'
+    return 'Hello Python RESTFUL API World!!!'
 
 
-# Get /products/CAD
-@app.route('/products/<string:currency_code>')
+# Get /products/currency/CAD
+@app.route('/products/currency/<string:currency_code>')
 def get_product_by_currency_code(currency_code):
     if not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
@@ -59,6 +59,17 @@ def get_products():
     return jsonify({'products': products})
 
 
+@app.route('/products/<string:product_code>')
+def get_product(product_code):
+    if not __check_authorization():
+        return jsonify({'error': 'Need a valid token.'})
+
+    for product in products:
+        if product['product_code'] == product_code:
+            return jsonify(product)
+    return Response('Not found', 404, mimetype='application/json')
+
+
 @app.route('/products', methods=['POST'])
 def add_product():
     if not __check_authorization():
@@ -68,37 +79,40 @@ def add_product():
         products.append(product)
         return Response('True', 201, mimetype='application/json')
     else:
-        return 'False'
+        return Response(''.join(products.keys(), 'may miss.'), 422, mimetype='application/json')
 
 
 @app.route('/products/<string:product_code>', methods=['PUT'])
-def modify_product():
+def modify_product(product_code):
     if not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
     product = request.get_json()
+    product['product_code'] = product_code
     if __valid_product_object(product):
         for i, prod in enumerate(products):
             if prod['product_code'] == product['product_code']:
                 products[i] = product
         return Response('True', 201, mimetype='application/json')
     else:
-        return 'False'
+        return Response(', '.join(products[0].keys()) + ' may miss.', 422, mimetype='application/json')
 
 
-@app.route('/products/modify/<string:product_code>', methods=['PATCH'])
-def modify_product_fields():
+@app.route('/products/<string:product_code>', methods=['PATCH'])
+def modify_product_fields(product_code):
     if not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
     product = request.get_json()
+    if not product:
+        return Response('Missing parameters', 422, mimetype='application/json')
     for i, prod in enumerate(products):
-        if prod['product_code'] == product['product_code']:
-            if product['amount']:
+        if prod['product_code'] == product_code:
+            if 'amount' in product:
                 products[i]['amount'] = product['amount']
-            if product['currency_code']:
+            if 'currency_code' in product:
                 products[i]['currency_code'] = product['currency_code']
-            return Response('True', 201, mimetype='application/json')
-    else:
-        return Response('False', 400, mimetype='application/json')
+            return Response('Modified', 201, mimetype='application/json')
+
+    return Response('Not found', 400, mimetype='application/json')
 
 
 @app.route('/products/<string:product_code>', methods=['DELETE'])
