@@ -24,15 +24,21 @@ Note: Some editors could check the PEP8 fro you automatically, such as VS Code p
 - Block comments generally apply to some (or all) code that follows them, and are indented to the same level as that code. Each line of a block comment starts with a # and a single space (unless it is indented text inside the comment).
 - Paragraphs inside a block comment are separated by a line containing a single #
 - Documentation Strings
-- Write docstrings for all public modules, functions, classes, and methods. Docstrings are not necessary for non-public methods, but you should have a comment that describes what the method does. This comment should appear after the def line.
-- Modules should have short, all-lowercase names. Underscores can be used in the module name if it improves readability. Python packages should also have short, all-lowercase names, although the use of underscores is discouraged.
-- Class names should normally use the CapWords convention.
-- Function names should be lowercase, with words separated by underscores as necessary to improve readability.
-- Variable names follow the same convention as function names.
-- mixedCase is allowed only in contexts where that's already the prevailing style (e.g. threading.py), to retain backwards compatibility.
-- Use one leading underscore only for non-public methods and instance variables.
-- Constants are usually defined on a module level and written in all capital letters with underscores separating words. Examples include MAX_OVERFLOW and TOTAL.
-- Public attributes should have no leading underscores.
+    - Write docstrings for all public modules, functions, classes, and methods. Docstrings are not necessary for non-public methods, but you should have a comment that describes what the method does. This comment should appear after the def line.
+    - the """ that ends a multiline docstring should be on a line by itself
+    - For one liner docstrings, please keep the closing """ omn the same line. 
+- Naming Conventions
+    - Method Names and Instance Variables: 
+        - Use the function naming rules: lowercase with words separated by underscores as necessary to improve readability.
+        - Use one leading underscore only for non-public methods and instance variables.
+    - Modules should have short, all-lowercase names. Underscores can be used in the module name if it improves readability. Python packages should also have short, all-lowercase names, although the use of underscores is discouraged.
+    - Class names should normally use the CapWords convention.
+    - Function names should be lowercase, with words separated by underscores as necessary to improve readability.
+    - Variable names follow the same convention as function names.
+    - mixedCase is allowed only in contexts where that's already the prevailing style (e.g. threading.py), to retain backwards compatibility.
+    - Use one leading underscore only for non-public methods and instance variables.
+    - Constants are usually defined on a module level and written in all capital letters with underscores separating words. Examples include MAX_OVERFLOW and TOTAL.
+    - Public attributes should have no leading underscores.
 - Comparisons to singletons like None should always be done with is or is not, never the equality operators.
 - Use is not operator rather than not
 - Always use a def statement instead of an assignment statement that binds a lambda expression directly to an identifier.

@@ -24,4 +24,4 @@
             "amount": 234.5,
             "currency_code": "USD"
         }
-- [DELETE]
+- [DELETE] localhost:5000/products/product_code=12354656F234?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NzAxMzM0ODl9.oHRrmapHqIgSuZKDFAKjW4dzHo17mJoAfsL7f8jwuKM  # Delete the product code
