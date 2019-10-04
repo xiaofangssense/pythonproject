@@ -1,6 +1,7 @@
 # pythontestproject
 ## Prequisted
 - Make sure the latest official python and pip are installed, could be python 3.7, and pip3
+- Make sure MongoDB was installed in your local and also mongo server was run(mongod)
 ## Getting Started
 - Python -m pip install -r requirements.txt
 - python main.py

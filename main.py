@@ -3,26 +3,11 @@ import datetime
 
 from flask import jsonify, request, Response
 from config import *
+from app.database import DB
+from app.entities.product import Product
 
-app.config['SECRET_KEY'] = 'meow'
 
-products = [
-    {
-        'product_code': '192011F110017',
-        'amount': 212.8,
-        'currency_code': 'CAD'
-    },
-    {
-        'product_code': '182011F110017',
-        'amount': 313.8,
-        'currency_code': 'USD'
-    },
-    {
-        'product_code': '172011F110017',
-        'amount': 513.8,
-        'currency_code': 'CAD'
-    }
-]
+DB.init()
 
 
 @app.route('/login')
@@ -32,7 +17,8 @@ def get_token():
     token = jwt.encode({'exp': expiration_date}, app.config['SECRET_KEY'], algorithm='HS256')
     return token
 
-# hello
+
+# Hello Python
 @app.route('/')
 def hello_world():
     return 'Hello Python RESTFUL API World!!!'
@@ -75,11 +61,15 @@ def add_product():
     if not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
     product = request.get_json()
-    if __valid_product_object(product):
-        products.append(product)
-        return Response('True', 201, mimetype='application/json')
-    else:
-        return Response(''.join(products.keys(), 'may miss.'), 422, mimetype='application/json')
+    product = __valid_product_object(product)
+    if not product:
+        return Response('Miss fields.', 422, mimetype='application/json')
+
+    try:
+        DB.insert_one('products', product)
+        return Response('Insert successfully', 201, mimetype='application/json')
+    except:
+        return Response('Failed to insert in DB', 501, mimetype='application/json')
 
 
 @app.route('/products/<string:product_code>', methods=['PUT'])
@@ -136,13 +126,12 @@ def __check_authorization():
 
 
 def __valid_product_object(product_object):
-    if ('product_code' in product_object
+    if ((product_object is not None) and 'product_code' in product_object
             and 'amount' in product_object
             and 'currency_code' in product_object):
-        return True
+        return Product(product_object).json()
     else:
         return False
 
 
 app.run(port=5000, debug=True)
-
