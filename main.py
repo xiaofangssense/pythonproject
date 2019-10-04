@@ -5,6 +5,7 @@ from flask import jsonify, request, Response
 from config import *
 from app.database import DB
 from app.entities.product import Product
+from bson.json_util import dumps, RELAXED_JSON_OPTIONS
 
 
 DB.init()
@@ -27,38 +28,32 @@ def hello_world():
 # Get /products/currency/CAD
 @app.route('/products/currency/<string:currency_code>')
 def get_product_by_currency_code(currency_code):
-    if not __check_authorization():
+    if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
-
-    currency_code_products = []
-    for product in products:
-        if product['currency_code'] == currency_code:
-            currency_code_products.append(product)
-    return jsonify({'products': currency_code_products})
+    products = DB.find('products', {'currency_code': currency_code})
+    return dumps({'products': products})
 
 
 @app.route('/products')
 def get_products():
-    if not __check_authorization():
+    if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
-
-    return jsonify({'products': products})
+    products = DB.find('products', {})
+    return dumps({'products': products})
 
 
 @app.route('/products/<string:product_code>')
 def get_product(product_code):
-    if not __check_authorization():
+    if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
 
-    for product in products:
-        if product['product_code'] == product_code:
-            return jsonify(product)
-    return Response('Not found', 404, mimetype='application/json')
+    products = DB.find('products', {'product_code': product_code})
+    return dumps({'products': products})
 
 
 @app.route('/products', methods=['POST'])
 def add_product():
-    if not __check_authorization():
+    if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
     product = request.get_json()
     product = __valid_product_object(product)
@@ -74,7 +69,7 @@ def add_product():
 
 @app.route('/products/<string:product_code>', methods=['PUT'])
 def modify_product(product_code):
-    if not __check_authorization():
+    if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
     product = request.get_json()
     product['product_code'] = product_code
@@ -89,7 +84,7 @@ def modify_product(product_code):
 
 @app.route('/products/<string:product_code>', methods=['PATCH'])
 def modify_product_fields(product_code):
-    if not __check_authorization():
+    if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
     product = request.get_json()
     if not product:
@@ -107,14 +102,10 @@ def modify_product_fields(product_code):
 
 @app.route('/products/<string:product_code>', methods=['DELETE'])
 def delete_product(product_code):
-    if not __check_authorization():
+    if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
-    for i, prod in enumerate(products):
-        if prod['product_code'] == product_code:
-            del products[i]
-            return Response('Deleted', 204, mimetype='application/json')
-
-    return Response('Not found', 404, mimetype='application/json')
+    deleted = DB.delete('products', {'product_code': product_code})
+    return Response(deleted, 200, mimetype='application/json')
 
 
 def __check_authorization():

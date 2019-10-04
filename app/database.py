@@ -16,7 +16,7 @@ class DB(object):
 
     @staticmethod
     def find_one(collection, query):
-        return DB.DATABASE[collection].find_one(query)
+        return list(DB.DATABASE[collection].find_one(query))
 
     @staticmethod
     def replace_one(collection, query):
@@ -24,8 +24,10 @@ class DB(object):
 
     @staticmethod
     def find(collection, query):
-        return DB.DATABASE[collection].find(query)
+        # Find all products
+        products = DB.DATABASE[collection].find(query)
+        return list(products)
 
     @staticmethod
-    def delete_one(collection, query):
-        return DB.DATABASE[collection].delete_one(query)
+    def delete(collection, query):
+        return DB.DATABASE[collection].delete_many(query)
