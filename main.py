@@ -7,7 +7,6 @@ from app.database import DB
 from app.entities.product import Product
 from bson.json_util import dumps
 
-
 DB.init()
 
 
@@ -27,10 +26,10 @@ def hello_world():
 
 # Get /products/currency/CAD
 @app.route('/products/currency/<string:currency_code>')
-def get_product_by_currency_code(currency_code):
+def get_product_by_currency_code(currency_code, db=None):
     if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
-    products = DB.find('products', {'currency_code': currency_code})
+    products = db or DB.find('products', {'currency_code': currency_code})
     return dumps({'products': products})
 
 
@@ -121,4 +120,5 @@ def __valid_product_object(product_object):
         return False
 
 
-app.run(port=5000, debug=True)
+if __name__ == '__main__':
+    app.run(debug=app.config['DEBUG'], host=app.config['HOST'], port=app.config['PORT'])

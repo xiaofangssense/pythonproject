@@ -5,6 +5,9 @@
 ## Getting Started
 - Python -m pip install -r requirements.txt
 - python main.py
+## Run test
+- python -m unittest tests
+- python -m unittest tests/unit/test_main.py
 ## Endpoints
 - localhost:5000  # Hello world
 - [GET] http://localhost:5000/login  # Get the token, could be: `eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NzAxMjA3NDZ9._uRInw6C2wdTW5AVwqGYSLw-lA0gj_naUcAw0s5z8k0`
