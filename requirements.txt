@@ -1,3 +1,4 @@
+bson
 boto3
 flask
 PyMongo

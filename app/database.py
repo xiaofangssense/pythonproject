@@ -19,8 +19,12 @@ class DB(object):
         return list(DB.DATABASE[collection].find_one(query))
 
     @staticmethod
-    def replace_one(collection, query):
-        return DB.DATABASE[collection].replace_one(query)
+    def find_one_and_replace(collection, query, replace):
+        return DB.DATABASE[collection].find_one_and_replace(query, replace)
+
+    @staticmethod
+    def find_one_and_update(collection, query, update):
+        return DB.DATABASE[collection].find_one_and_update(query, {"$set": update}, upsert=True)
 
     @staticmethod
     def find(collection, query):
