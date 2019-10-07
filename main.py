@@ -105,6 +105,8 @@ def delete_product(product_code):
 
 def __check_authorization():
     token = request.args.get('token')
+    if not token:
+        return False
     try:
         return jwt.decode(token, app.config['SECRET_KEY'])
     except ValueError:
