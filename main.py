@@ -34,10 +34,10 @@ def get_product_by_currency_code(currency_code, db=None):
 
 
 @app.route('/products')
-def get_products():
+def get_products(db=None):
     if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
-    products = DB.find('products', {})
+    products = db or DB.find('products', {})
     return dumps({'products': products})
 
 
@@ -51,7 +51,7 @@ def get_product(product_code):
 
 
 @app.route('/products', methods=['POST'])
-def add_product():
+def add_product(db=None):
     if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
     product = __valid_product_object(request.get_json())
@@ -59,7 +59,7 @@ def add_product():
         return Response('Missing fields.', 422, mimetype='application/json')
 
     try:
-        DB.insert_one('products', product)
+        db or DB.insert_one('products', product)
         return Response('Insert successfully', 201, mimetype='application/json')
     except ValueError:
         return Response('Failed to insert in DB', 501, mimetype='application/json')

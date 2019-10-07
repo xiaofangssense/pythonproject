@@ -1,3 +1,4 @@
+requests
 bson
 boto3
 flask
