@@ -2,6 +2,8 @@ import jwt
 import datetime
 
 from flask import jsonify, request, Response
+from jwt import ExpiredSignatureError
+
 from config import *
 from app.database import DB
 from app.entities.product import Product
@@ -12,8 +14,8 @@ DB.init()
 
 @app.route('/login')
 def get_token():
-    # will expire 100 seconds after the clients asked
-    expiration_date = datetime.datetime.utcnow() + datetime.timedelta(seconds=100)
+    # will expire TOKEN_EXPIRED_SECONDS seconds after the clients asked
+    expiration_date = datetime.datetime.utcnow() + datetime.timedelta(seconds=app.config['TOKEN_EXPIRED_SECONDS'])
     token = jwt.encode({'exp': expiration_date}, app.config['SECRET_KEY'], algorithm='HS256')
     return token
 
@@ -66,14 +68,15 @@ def add_product(db=None):
 
 # localhost:5000/products/5d978311afbbf8c790d9db6f
 @app.route('/products/<string:pid>', methods=['PUT'])
-def modify_product(pid):
+def replace_product(pid):
     if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
     product = request.get_json()
+    product = __valid_product_object(product)
     if not product:
         return Response('Missing fields or product NOT found', 422, mimetype='application/json')
     try:
-        DB.find_one_and_update('products', {'_id': pid}, product)
+        DB.find_one_and_replace('products', {'_id': pid}, product)
         return Response('Successfully Updated', 201, mimetype='application/json')
     except ValueError:
         return Response('Some fields may miss.', 422, mimetype='application/json')
@@ -84,12 +87,10 @@ def modify_product_fields(product_code):
     if not app.config['DISABLE_TOKEN'] and not __check_authorization():
         return jsonify({'error': 'Need a valid token.'})
     product = request.get_json()
-    product['product_code'] = product_code
     if not product:
         return Response('Missing parameters', 422, mimetype='application/json')
-    product = __valid_product_object(product)
     try:
-        DB.find_one_and_replace('products', {'product_code': product_code}, product)
+        DB.find_one_and_update('products', {'product_code': product_code}, product)
         return Response('Successfully Replaced', 201, mimetype='application/json')
     except ValueError:
         return Response('Failed to replace the product.', 422, mimetype='application/json')
@@ -109,6 +110,9 @@ def __check_authorization():
         return False
     try:
         return jwt.decode(token, app.config['SECRET_KEY'])
+    except ExpiredSignatureError:
+        print('Signature has expired')
+        return False
     except ValueError:
         return False
 
